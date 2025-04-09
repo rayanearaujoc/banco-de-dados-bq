@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Gerenciador de Cachorros</title>
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      background: #fbeec1;
+      color: #3e3e3e;
+      padding: 2rem;
+      margin: 0;
+    }
+
+    h1 {
+      text-align: center;
+      font-family: 'Georgia', serif;
+      color: #6c5b7b;
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 40px;
+      margin-top: 2rem;
+    }
+
+    form {
+      background: #fff;
+      border: 2px dashed #c06c84;
+      border-radius: 12px;
+      padding: 1.5rem;
+      width: 300px;
+      box-shadow: 4px 4px 0 #c06c84;
+    }
+
+    input {
+      width: 100%;
+      margin: 0.5rem 0;
+      padding: 0.5rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-family: 'Courier New', monospace;
+    }
+
+    button {
+      background: #6c5b7b;
+      color: white;
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+
+    button:hover {
+      background: #355c7d;
+    }
+
+    .mensagem, .query, .carregando {
+      margin-top: 0.7rem;
+      font-size: 0.9rem;
+    }
+
+    .carregando {
+      color: #e67e22;
+    }
+
+    .mensagem {
+      color: #27ae60;
+      font-weight: bold;
+    }
+
+    .query {
+      font-family: monospace;
+      white-space: pre-wrap;
+      background: #f4f1de;
+      border-radius: 6px;
+      border-left: 4px solid #c06c84;
+      padding: 20px;
+    }
+
+    lottie-player {
+      display: block;
+      margin: 0 auto;
+      width: 150px;
+    }
+  </style>
+</head>
+<body>
+
+  <lottie-player
+  src="{{ url_for('static', filename='animacao.json') }}"
+  background="transparent"
+  speed="1"
+  loop
+  autoplay>
+ </lottie-player>
+
+  <h1>DogQuery</h1>
+
+  <div class="container">
+
+    <form id="form-inserir">
+      <h3>Adicionar Cliente (cachorro)</h3>
+      <input name="nome" placeholder="Nome" required>
+      <input name="raca" placeholder="Raça" required>
+      <input name="idade" type="number" placeholder="Idade" required>
+      <input name="tutor" placeholder="Nome do Tutor" required>
+      <button type="submit">Adicionar</button>
+      <div class="carregando" style="display:none">Processando...</div>
+      <div class="mensagem"></div>
+      <div class="query"></div>
+    </form>
+
+
+    <form id="form-atualizar">
+      <h3>Atualizar Idade do cliente (cachorro) </h3>
+      <input name="nome" placeholder="Nome do Cachorro" required>
+      <input name="nova_idade" type="number" placeholder="Nova Idade" required>
+      <button type="submit">Atualizar</button>
+      <div class="carregando" style="display:none">Processando...</div>
+      <div class="mensagem"></div>
+      <div class="query"></div>
+    </form>
+
+    <form id="form-deletar">
+      <h3>Deletar cliente (cachorro)</h3>
+      <input name="nome" placeholder="Nome do Cachorro" required>
+      <button type="submit">Deletar</button>
+      <div class="carregando" style="display:none">Processando...</div>
+      <div class="mensagem"></div>
+      <div class="query"></div>
+    </form>
+
+  </div>
+
+  <script>
+    function enviarFormulario(formId, rota) {
+      const form = document.getElementById(formId);
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const dados = new FormData(form);
+        const carregando = form.querySelector('.carregando');
+        const mensagem = form.querySelector('.mensagem');
+        const queryBox = form.querySelector('.query');
+
+        carregando.style.display = 'block';
+        mensagem.textContent = '';
+        queryBox.textContent = '';
+
+        const resposta = await fetch(rota, {
+          method: 'POST',
+          body: dados
+        });
+
+        const json = await resposta.json();
+        carregando.style.display = 'none';
+        mensagem.textContent = json.mensagem;
+        queryBox.textContent = json.query;
+      });
+    }
+
+    enviarFormulario('form-inserir', '/inserir');
+    enviarFormulario('form-atualizar', '/atualizar');
+    enviarFormulario('form-deletar', '/deletar');
+  </script>
+</body>
+</html>
